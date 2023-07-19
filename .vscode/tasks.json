@@ -24,6 +24,13 @@
 			],
 			"label": "npm: vscode:prepublish",
 			"detail": "yarn run compile"
+		},
+		{
+			"type": "npm",
+			"script": "package",
+			"problemMatcher": [],
+			"label": "npm: package",
+			"detail": "yarn run compile && vsce package"
 		}
 	]
 }

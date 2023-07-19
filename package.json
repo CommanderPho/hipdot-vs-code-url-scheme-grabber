@@ -62,6 +62,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
+    "package": "yarn run compile && vsce package",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
