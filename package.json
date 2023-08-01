@@ -31,21 +31,41 @@
     "commands": [
       {
         "command": "hipdot-vs-code-url-scheme-grabber.copyLink",
-        "title": "Copy Link to Current File and Line Number"
+        "title": "🔗Copy Link to Current File and Line Number"
       },
       {
         "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLink",
-        "title": "Copy Link to Current File and Line Number in Markdown Format"
+        "title": "🔗Copy Link to Current File and Line Number in Markdown Format"
       },
       {
         "command": "hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection",
-        "title": "Copy Link to Current File and Line Number + Selection"
+        "title": "📋🔗Copy Link to Current File and Line Number + Selection"
       },
       {
         "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
-        "title": "Copy Link to Current File and Line Number + Selection in Markdown Format"
+        "title": "📋🔗Copy Link to Current File and Line Number + Selection in Markdown Format"
       }
     ],
+    "menus": {
+        "editor/context": [
+        {
+          "command": "hipdot-vs-code-url-scheme-grabber.copyLink",
+          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyLink"
+        },
+        {
+          "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLink",
+          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLink"
+        },
+        {
+          "command": "hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection",
+          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyLinkAndSelection"
+        },
+        {
+          "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
+          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLinkAndSelection"
+        }
+      ]
+    },
     "configuration": {
       "title": "URL Scheme Grabber",
       "properties": {
@@ -53,6 +73,26 @@
           "type": "boolean",
           "default": false,
           "description": "Include the column number in the link to the current file and line number"
+        },
+        "hipdotUrlSchemeGrabber.contextMenu.copyLink": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable context menu for 'Copy Link to Current File and Line Number'"
+        },
+        "hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLink": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable context menu for 'Copy Link in Markdown Format'"
+        },
+        "hipdotUrlSchemeGrabber.contextMenu.copyLinkAndSelection": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable context menu for 'Copy Link to Current File and Line Number + Selection'"
+        },
+        "hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLinkAndSelection": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable context menu for 'Copy Link to Current File and Line Number + Selection in Markdown Format'"
         }
       }
     }
