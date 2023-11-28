@@ -4,3 +4,5 @@ node_modules
 .vscode-test/
 *.vsix
 package-lock.json
+desktop.ini
+FM-{FED68F1F-56AE-452C-8E85-55C19A456CFC}.ico
