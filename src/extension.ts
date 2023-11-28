@@ -11,6 +11,18 @@ class NoTextEditorOpen extends Error {
 class DocumentIsUntitled extends Error {
 }
 
+
+function getSelectedText() {
+  const editor = vscode.window.activeTextEditor;
+  if (editor) {
+    const document = editor.document;
+    const selection = editor.selection;
+    const text = document.getText(selection);
+    return text;
+  }
+  return '';
+}
+
 function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false): string {
 	if (!vscode.workspace.rootPath) {
 		throw new NoWorkspaceOpen;
