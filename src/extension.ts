@@ -135,23 +135,43 @@ async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
 //     return undefined;
 // }
 
-async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[]): Promise<vscode.DocumentSymbol | undefined> {
-	// returns the deepest (innermost) symbol that contains the lineNumber
+async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[], full_symbol_path: boolean): Promise<vscode.DocumentSymbol[] | vscode.DocumentSymbol | undefined> {
+
+    let result: vscode.DocumentSymbol[] = [];
     for (let symbol of symbols) {
         if (symbol.range.start.line <= lineNumber && symbol.range.end.line >= lineNumber) {
-            // If the symbol has children, search them before potentially returning the parent symbol
+
+            if (full_symbol_path) {
+                // Prepare for returning the symbol
+                result.push(symbol);
+            }
+
             if (symbol.children) {
-                let foundSymbol = await getContainingSymbol(lineNumber, symbol.children);
+                let foundSymbol = await getContainingSymbol(lineNumber, symbol.children, full_symbol_path);
+
                 if (foundSymbol) {
-                    // If a matching child symbol is found, return that instead of the parent
-                    return foundSymbol;
+                    if (full_symbol_path) {
+                        // Attach the chain of child symbols to the result
+                        result = result.concat(foundSymbol as vscode.DocumentSymbol[]);
+                    }
+                    else {
+                        // If a matching child symbol is found, return that instead of the parent
+                        return foundSymbol;
+                    }
                 }
             }
-            // If there are no matching child symbols, return the parent symbol
-            return symbol;
+
+            if (full_symbol_path && result.length > 0) {
+                // If full_symbol_path flag is set and result array is not empty, then return the result.
+                return result;
+            }
+            else if (!full_symbol_path) {
+                // If full_symbol_path flag is not set and there are no children, then return the symbol.
+                return symbol;
+            }
         }
     }
-    // If no matching symbol is found, return undefined
+    // If no matching symbol is found, return undefined.
     return undefined;
 }
 
@@ -186,7 +206,18 @@ async function copyCurrentLanguageServerSymbols() {
 		// await printAllSymbols(symbols, res);
 		// let symbol = await getContainingSymbol(lineNumber, symbols, res);
 		await printAllSymbols(symbols);
-		let symbol = await getContainingSymbol(lineNumber, symbols);
+
+		for (let symbol of symbols) {
+			console.log(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
+			if (symbol.children) {
+				await printAllSymbols(symbol.children);
+			}
+		}
+
+		const symbolProvider = new SymbolProvider(symbols);
+
+		// Get best symbol
+		let symbol = await getContainingSymbol(lineNumber, symbols, false); // full_symbol_path = True
 		if (symbol) {
 			let lineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[symbol.kind]} ${symbol.name}`;
 			console.log(lineSymbolText);

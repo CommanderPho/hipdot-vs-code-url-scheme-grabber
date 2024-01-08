@@ -25,7 +25,59 @@ const getDefinedParentSymbols = (symbol: DefinedSymbol, symbols: DefinedSymbol[]
  * @return {array} defined symbols
  */
 export const getRelatedDefinedSymbols = (text: string, lineNumber: number): string[] => {
-const parser = new Python3Parser();
+    /* Usage:
+
+    import { basename } from 'path';
+    import { getRelatedDefinedSymbols } from './utils/getRelatedDefinedSymbols';
+    import { getCurrentFileDottedPath } from './utils/getCurrentFileDottedPath';
+
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showErrorMessage("No active editor! Only use this command when selected file in active editor.");
+      return;
+    }
+
+    const resource = editor.document.uri;
+    if (resource.scheme === 'file') {
+      const currentFilePath = editor.document.fileName;
+      if (!currentFilePath) {
+        vscode.window.showErrorMessage("Don't read file. only use this command when selected file.");
+        return;
+      }
+      if (!/.py$/.test(currentFilePath)) {
+        vscode.window.showErrorMessage('Not a python file. only use this command when selected python file.');
+        return;
+      }
+      // Get workspace folder to determine relative path
+      const folder = vscode.workspace.getWorkspaceFolder(resource);
+      if (!folder) {
+        vscode.window.showErrorMessage('No workspace folder is opened. only use this command in a workspace.');
+        return;
+      }
+
+      const config = vscode.workspace.getConfiguration("copyPythonPath");
+      const shouldAddModuleRootName = config.get<boolean>("addModuleRootName");
+
+      // get current file dotted path
+      const currentFileDottedPath = getCurrentFileDottedPath({ rootPath: folder.uri.fsPath, currentFilePath: currentFilePath, shouldAddModuleRootName});
+
+      try {
+        // get related defined symbols from current file and current cursor position
+        const text = vscode.window.activeTextEditor!.document.getText();
+        const currentLine = vscode.window.activeTextEditor!.selection.active.line;
+        const definedSymbols = getRelatedDefinedSymbols(text, currentLine + 1);
+        const finalOutPath = [currentFileDottedPath, ...definedSymbols].join('.');
+        // copy python dotted path to clipboard
+        await vscode.env.clipboard.writeText(finalOutPath);
+        // vscode.window.showInformationMessage('Copied to clipboard.');
+        vscode.window.showInformationMessage(['Copied to clipboard', finalOutPath].join(': '));
+      } catch (e) {
+        console.error(e);
+        vscode.window.showErrorMessage('Failed to parse file.');
+      }
+    */
+
+  const parser = new Python3Parser();
   const tree = parser.parse(text);
 
   const symbols: DefinedSymbol[] = [];
