@@ -23,6 +23,108 @@ function getSelectedText() {
   return '';
 }
 
+
+async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
+    for (let symbol of symbols) {
+        console.log(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
+        if (symbol.children) {
+            await printAllSymbols(symbol.children);
+        }
+    }
+}
+
+async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[]): Promise<vscode.DocumentSymbol | undefined> {
+    for (let symbol of symbols) {
+        if (symbol.range.start.line <= lineNumber && symbol.range.end.line >= lineNumber) {
+            return symbol;
+        } else if (symbol.children) {
+            let foundSymbol = await getContainingSymbol(lineNumber, symbol.children);
+            if (foundSymbol)
+                return foundSymbol;
+        }
+    }
+    return undefined;
+}
+
+async function copyCurrentLanguageServerSymbols() {
+    if (!vscode.workspace.rootPath) {
+        throw new Error("NoWorkspaceOpen");
+    }
+
+    let editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        throw new Error("NoTextEditorOpen");
+    }
+
+    let document = editor.document;
+    if (document.isUntitled) {
+        throw new Error("DocumentIsUntitled");
+    }
+
+    const path = document.uri.path;
+    const lineNumber = editor.selection.active.line;
+    let symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+        'vscode.executeDocumentSymbolProvider',
+        document.uri
+    );
+
+    if (symbols) {
+        console.log("All symbols:")
+        await printAllSymbols(symbols);
+        let symbol = await getContainingSymbol(lineNumber, symbols);
+        if (symbol) {
+            console.log(`Symbol at line ${lineNumber}: ${vscode.SymbolKind[symbol.kind]} ${symbol.name}`);
+        }
+    }
+};
+
+
+// function copyCurrentLanguageServerSymbols(): string {
+// 	if (!vscode.workspace.rootPath) {
+// 		throw new NoWorkspaceOpen;
+// 	}
+
+// 	let editor = vscode.window.activeTextEditor;
+// 	if (!editor) {
+// 		throw new NoTextEditorOpen;
+// 	}
+
+// 	let document = editor.document;
+// 	if (document.isUntitled) {
+// 		throw new DocumentIsUntitled;
+// 	}
+
+// 	const path = document.uri.path;
+// 	const relativePath = path.replace(vscode.workspace.rootPath, '');
+// 	const lineNumber = editor.selection.active.line + 1;
+// 	const columnNumber = editor.selection.active.character + 1;
+// 	const includeColumn = vscode.workspace.getConfiguration('hipdotUrlSchemeGrabber').get('includeColumn');
+// 	const url = `vscode://file${path}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}`;
+
+
+// 	// assuming you have a vscode.TextDocument `doc`
+// 	let symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+// 	'vscode.executeDocumentSymbolProvider',
+// 	document.uri
+// 	);
+
+// 	// TODO: print all of the symbols to the debug console
+
+// 	// TODO: find which symbols correspond to the current lineNumber
+
+// 	// // return markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
+//     // let output = markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
+    
+//     // if (includeHighlightedTextAsCodeBlock) {
+//     //     const selectedText = editor.document.getText(editor.selection);
+//     //     const codeBlock = "```" + document.languageId + "\n" + selectedText + "\n```";
+// 	// 	// TODO: optionally de-indent to the appropriate (minimum) level
+//     //     output += "\n" + codeBlock;
+//     // }
+    
+//     // return output;
+// };
+
 function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false): string {
 	if (!vscode.workspace.rootPath) {
 		throw new NoWorkspaceOpen;
@@ -57,6 +159,13 @@ function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, inc
     
     return output;
 };
+
+
+
+// the symbols array now contains the symbol tree for the document
+// you have to traverse this tree to find the corresponding symbol
+
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -163,7 +272,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(copyMarkdownLinkAndSelection);
 
-
+	// new LSP thing:
+	context.subscriptions.push(
+        vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', copyCurrentLanguageServerSymbols)
+    );
 
 
 }

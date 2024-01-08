@@ -5,7 +5,7 @@
   "publisher": "HipDotMedia",
   "license": "MIT",
   "icon": "images/icon.png",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/CommanderPho/hipdot-vs-code-url-scheme-grabber.git"
@@ -44,7 +44,12 @@
       {
         "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
         "title": "📋🔗Copy Link to Current File and Line Number + Selection in Markdown Format"
+      },
+      {
+        "command": "hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols",
+        "title": "?🔗📋? Copy Current Language Server Symbols"
       }
+
     ],
     "menus": {
         "editor/context": [
