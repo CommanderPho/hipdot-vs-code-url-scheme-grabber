@@ -28,6 +28,14 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "views": {
+        "explorer": [
+            {
+                "id": "symbolView",
+                "name": "Symbol View"
+            }
+        ]
+    },
     "commands": [
       {
         "command": "hipdot-vs-code-url-scheme-grabber.copyLink",
@@ -48,8 +56,11 @@
       {
         "command": "hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols",
         "title": "?🔗📋? Copy Current Language Server Symbols"
+      },
+      {
+        "command": "extension.showSymbols",
+        "title": "?🔗? Show Current Symbols"
       }
-
     ],
     "menus": {
         "editor/context": [

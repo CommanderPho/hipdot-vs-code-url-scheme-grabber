@@ -23,6 +23,74 @@ function getSelectedText() {
   return '';
 }
 
+function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false): string {
+	if (!vscode.workspace.rootPath) {
+		throw new NoWorkspaceOpen;
+	}
+
+	let editor = vscode.window.activeTextEditor;
+	if (!editor) {
+		throw new NoTextEditorOpen;
+	}
+
+	let document = editor.document;
+	if (document.isUntitled) {
+		throw new DocumentIsUntitled;
+	}
+
+	const path = document.uri.path;
+	const relativePath = path.replace(vscode.workspace.rootPath, '');
+	const lineNumber = editor.selection.active.line + 1;
+	const columnNumber = editor.selection.active.character + 1;
+	const includeColumn = vscode.workspace.getConfiguration('hipdotUrlSchemeGrabber').get('includeColumn');
+
+	const url = `vscode://file${path}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}`;
+	// return markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
+    let output = markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
+    
+    if (includeHighlightedTextAsCodeBlock) {
+        const selectedText = editor.document.getText(editor.selection);
+        const codeBlock = "```" + document.languageId + "\n" + selectedText + "\n```";
+		// TODO: optionally de-indent to the appropriate (minimum) level
+        output += "\n" + codeBlock;
+    }
+    
+    return output;
+};
+
+
+class SymbolProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
+    private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | null | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
+    readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+
+    private symbols: vscode.DocumentSymbol[];
+
+    constructor(symbols: vscode.DocumentSymbol[]) {
+        this.symbols = symbols;
+    }
+
+    refresh(symbols: vscode.DocumentSymbol[]) {
+        this.symbols = symbols;
+        this._onDidChangeTreeData.fire();
+    }
+
+    getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+        return element;
+    }
+
+    getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
+        if (element) {
+            return Promise.resolve(this.symbols.filter(e => element.label === e.name).map(
+                e => new vscode.TreeItem(`${e.name} Range: l(${e.range.start.line + 1}, ${e.range.start.character + 1}) - l(${e.range.end.line + 1}, ${e.range.end.character + 1}), Kind: ${vscode.SymbolKind[e.kind]}`, e.children.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None)
+            ));
+        } else {
+            return Promise.resolve(this.symbols.map(
+                e => new vscode.TreeItem(`${e.name} Range: l(${e.range.start.line + 1}, ${e.range.start.character + 1}) - l(${e.range.end.line + 1}, ${e.range.end.character + 1}), Kind: ${vscode.SymbolKind[e.kind]}`, e.children.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None)
+            ));
+        }
+    }
+}
+
 
 async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
     for (let symbol of symbols) {
@@ -68,14 +136,27 @@ async function copyCurrentLanguageServerSymbols() {
         document.uri
     );
 
+	let res: string[] = [];
     if (symbols) {
-        console.log("All symbols:")
-        await printAllSymbols(symbols);
-        let symbol = await getContainingSymbol(lineNumber, symbols);
-        if (symbol) {
-            console.log(`Symbol at line ${lineNumber}: ${vscode.SymbolKind[symbol.kind]} ${symbol.name}`);
-        }
-    }
+		res.push("All symbols:");
+		console.log("All symbols:")
+		// await printAllSymbols(symbols, res);
+		// let symbol = await getContainingSymbol(lineNumber, symbols, res);
+		await printAllSymbols(symbols);
+		let symbol = await getContainingSymbol(lineNumber, symbols);
+		if (symbol) {
+			let lineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[symbol.kind]} ${symbol.name}`;
+			console.log(lineSymbolText);
+			res.push(`\n${lineSymbolText}`);
+		}
+		else {
+			res.push(`\nNo symbol at line ${lineNumber}`);
+			console.log(`No symbol at line ${lineNumber}`);
+		}
+	} else {
+		res.push("No symbols found");
+	}
+	return res.join("");
 };
 
 
@@ -124,41 +205,6 @@ async function copyCurrentLanguageServerSymbols() {
     
 //     // return output;
 // };
-
-function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false): string {
-	if (!vscode.workspace.rootPath) {
-		throw new NoWorkspaceOpen;
-	}
-
-	let editor = vscode.window.activeTextEditor;
-	if (!editor) {
-		throw new NoTextEditorOpen;
-	}
-
-	let document = editor.document;
-	if (document.isUntitled) {
-		throw new DocumentIsUntitled;
-	}
-
-	const path = document.uri.path;
-	const relativePath = path.replace(vscode.workspace.rootPath, '');
-	const lineNumber = editor.selection.active.line + 1;
-	const columnNumber = editor.selection.active.character + 1;
-	const includeColumn = vscode.workspace.getConfiguration('hipdotUrlSchemeGrabber').get('includeColumn');
-
-	const url = `vscode://file${path}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}`;
-	// return markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
-    let output = markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
-    
-    if (includeHighlightedTextAsCodeBlock) {
-        const selectedText = editor.document.getText(editor.selection);
-        const codeBlock = "```" + document.languageId + "\n" + selectedText + "\n```";
-		// TODO: optionally de-indent to the appropriate (minimum) level
-        output += "\n" + codeBlock;
-    }
-    
-    return output;
-};
 
 
 
@@ -273,9 +319,99 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(copyMarkdownLinkAndSelection);
 
 	// new LSP thing:
-	context.subscriptions.push(
-        vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', copyCurrentLanguageServerSymbols)
-    );
+	// context.subscriptions.push(
+    //     vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', copyCurrentLanguageServerSymbols)
+    // );
+	
+	let copyCurrentLanguageServerSymbolsCommand = vscode.commands.registerCommand(
+		'hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', async () => {
+		let symbolInfo;
+		try {
+			symbolInfo = await copyCurrentLanguageServerSymbols();
+		} catch (e) {
+			if (e instanceof NoWorkspaceOpen) {
+			} else if (e instanceof NoTextEditorOpen) {
+			} else if (e instanceof DocumentIsUntitled) {
+			} else {
+				throw e;
+			}
+		}
+
+		if (!symbolInfo) {
+			throw new Error("Could not get symbol info.");
+		}
+
+		vscode.env.clipboard.writeText(symbolInfo).then(() => {
+			vscode.window.showInformationMessage('Python Symbol Information Copied to Clipboard');
+		});
+	});
+	context.subscriptions.push(copyCurrentLanguageServerSymbolsCommand);
+
+
+	// WEBVIEW API:
+	// let disposable = vscode.commands.registerCommand('extension.showSymbols', async () => {
+	// 	// Create and show a new webview panel
+	// 	const panel = vscode.window.createWebviewPanel(
+	// 		'symbolView', // Identifies the type of the webview. Used internally
+	// 		'Current Symbols', // Title of the panel displayed to the user
+	// 		vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+	// 		{} // Webview options
+	// 	);
+		
+	// 	// Get symbols
+	// 	const editor = vscode.window.activeTextEditor;
+	// 	if (!editor || editor.document.languageId !== 'python') {
+	// 		panel.webview.html = `<h1>No symbols here</h1>`;
+	// 		return;
+	// 	}
+
+	// 	const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+	// 		'vscode.executeDocumentSymbolProvider',
+	// 		editor.document.uri
+	// 	);
+		
+	// 	if (!symbols || !symbols.length) {
+	// 		panel.webview.html = `<h1>No symbols here</h1>`;
+	// 		return;
+	// 	}
+
+	// 	// Display symbols in webview
+	// 	const symbolsHtml = symbols.map(symbol => `
+	// 		<div>
+	// 			<h2>${symbol.name}</h2>
+	// 			<p>Type: ${vscode.SymbolKind[symbol.kind]}</p>
+	// 			<p>Range: ${symbol.range.start.line} - ${symbol.range.end.line}</p>
+	// 		</div>
+	// 	`).join('\n');
+
+	// 	panel.webview.html = `<body>${symbolsHtml}</body>`;
+	// });
+	// context.subscriptions.push(disposable);
+
+	// TreeView API:
+	let disposable = vscode.commands.registerCommand('extension.showSymbols', async () => {
+		const editor = vscode.window.activeTextEditor;
+		if (!editor || editor.document.languageId !== 'python') {
+			vscode.window.showInformationMessage('No symbols here');
+			return;
+		}
+
+		const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+			'vscode.executeDocumentSymbolProvider',
+			editor.document.uri
+		);
+
+		if (!symbols || !symbols.length) {
+			vscode.window.showInformationMessage('No symbols here');
+			return;
+		}
+
+		const symbolProvider = new SymbolProvider(symbols);
+
+		vscode.window.createTreeView('symbolView', { treeDataProvider: symbolProvider });
+	});
+	context.subscriptions.push(disposable);
+
 
 
 }
