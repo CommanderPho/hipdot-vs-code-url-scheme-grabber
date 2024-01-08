@@ -60,35 +60,53 @@ function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, inc
 
 
 class SymbolProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-    private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | null | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
-    readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | null | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
-    private symbols: vscode.DocumentSymbol[];
+  private symbols: vscode.DocumentSymbol[];
 
-    constructor(symbols: vscode.DocumentSymbol[]) {
-        this.symbols = symbols;
+  constructor(symbols: vscode.DocumentSymbol[]) {
+    this.symbols = symbols;
+  }
+
+  refresh(symbols: vscode.DocumentSymbol[]) {
+    this.symbols = symbols;
+    this._onDidChangeTreeData.fire();
+  }
+
+  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+    return element;
+  }
+
+  getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
+    if (element) {
+      let matchingSymbol = this.findSymbol(this.symbols, element.id!);
+      if (matchingSymbol) {
+        return Promise.resolve(this.symbolsToTreeItems(matchingSymbol.children));
+      }
+    } else {
+      return Promise.resolve(this.symbolsToTreeItems(this.symbols));
     }
+  }
 
-    refresh(symbols: vscode.DocumentSymbol[]) {
-        this.symbols = symbols;
-        this._onDidChangeTreeData.fire();
-    }
+  private symbolsToTreeItems(symbols: vscode.DocumentSymbol[]): vscode.TreeItem[] {
+    return symbols.map(symbol => 
+        new vscode.TreeItem(`${symbol.name} Range: l(${symbol.range.start.line + 1}) - l(${symbol.range.end.line + 1}), Kind: ${vscode.SymbolKind[symbol.kind]}`, 
+        symbol.children.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None)
+    );
+  }
 
-    getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
-        return element;
+  private findSymbol(symbols: vscode.DocumentSymbol[], label: string): vscode.DocumentSymbol | undefined {
+    for (const symbol of symbols) {
+      if (symbol.name === label) {
+        return symbol;
+      }
+      const found = this.findSymbol(symbol.children, label);
+      if (found) {
+        return found;
+      }
     }
-
-    getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
-        if (element) {
-            return Promise.resolve(this.symbols.filter(e => element.label === e.name).map(
-                e => new vscode.TreeItem(`${e.name} Range: l(${e.range.start.line + 1}, ${e.range.start.character + 1}) - l(${e.range.end.line + 1}, ${e.range.end.character + 1}), Kind: ${vscode.SymbolKind[e.kind]}`, e.children.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None)
-            ));
-        } else {
-            return Promise.resolve(this.symbols.map(
-                e => new vscode.TreeItem(`${e.name} Range: l(${e.range.start.line + 1}, ${e.range.start.character + 1}) - l(${e.range.end.line + 1}, ${e.range.end.character + 1}), Kind: ${vscode.SymbolKind[e.kind]}`, e.children.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None)
-            ));
-        }
-    }
+  }
 }
 
 
@@ -101,18 +119,41 @@ async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
     }
 }
 
+// async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[]): Promise<vscode.DocumentSymbol | undefined> {
+// 	// Doesn't quite work, seems to get the outer-most symbol and not the innermost one that contains the lines.
+//     for (let symbol of symbols) {
+//         if (symbol.range.start.line <= lineNumber && symbol.range.end.line >= lineNumber) {
+//             return symbol;
+//         } else if (symbol.children) {
+//             let foundSymbol = await getContainingSymbol(lineNumber, symbol.children);
+//             if (foundSymbol)
+//                 return foundSymbol;
+//         }
+//     }
+//     return undefined;
+// }
+
 async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[]): Promise<vscode.DocumentSymbol | undefined> {
+	// returns the deepest (innermost) symbol that contains the lineNumber
     for (let symbol of symbols) {
         if (symbol.range.start.line <= lineNumber && symbol.range.end.line >= lineNumber) {
+            // If the symbol has children, search them before potentially returning the parent symbol
+            if (symbol.children) {
+                let foundSymbol = await getContainingSymbol(lineNumber, symbol.children);
+                if (foundSymbol) {
+                    // If a matching child symbol is found, return that instead of the parent
+                    return foundSymbol;
+                }
+            }
+            // If there are no matching child symbols, return the parent symbol
             return symbol;
-        } else if (symbol.children) {
-            let foundSymbol = await getContainingSymbol(lineNumber, symbol.children);
-            if (foundSymbol)
-                return foundSymbol;
         }
     }
+    // If no matching symbol is found, return undefined
     return undefined;
 }
+
+
 
 async function copyCurrentLanguageServerSymbols() {
     if (!vscode.workspace.rootPath) {
