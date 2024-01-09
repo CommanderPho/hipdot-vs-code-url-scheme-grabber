@@ -14,6 +14,10 @@ class DocumentIsUntitled extends Error {
 }
 
 
+// Create output channel
+let output_channel = vscode.window.createOutputChannel("hipdot-vs-code");
+
+
 function getSelectedText() {
   const editor = vscode.window.activeTextEditor;
   if (editor) {
@@ -114,7 +118,9 @@ class SymbolProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
 async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
     for (let symbol of symbols) {
-        console.log(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
+		let lineSymbolText = `Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`;
+		console.log(lineSymbolText);
+		output_channel.appendLine(lineSymbolText);
         if (symbol.children) {
             await printAllSymbols(symbol.children);
         }
@@ -202,13 +208,17 @@ async function copyCurrentLanguageServerSymbols() {
 	let res: string[] = [];
     if (symbols) {
 		res.push("All symbols:");
-		console.log("All symbols:")
+		console.log("All symbols:");
+		output_channel.appendLine("All symbols:");
+
 		// await printAllSymbols(symbols, res);
 		// let symbol = await getContainingSymbol(lineNumber, symbols, res);
 		await printAllSymbols(symbols);
 
 		for (let symbol of symbols) {
 			console.log(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
+			output_channel.appendLine(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
+
 			if (symbol.children) {
 				await printAllSymbols(symbol.children);
 			}
@@ -221,6 +231,7 @@ async function copyCurrentLanguageServerSymbols() {
 		if (symbol) {
 			let lineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[symbol.kind]} ${symbol.name}`;
 			console.log(lineSymbolText);
+			output_channel.appendLine(lineSymbolText);
 			res.push(`\n${lineSymbolText}`);
 		}
 		else {
@@ -290,6 +301,13 @@ async function copyCurrentLanguageServerSymbols() {
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+
+	// Create output channel
+	// let output_channel = vscode.window.createOutputChannel("hipdot-vs-code", "python")
+
+	// write to output
+	output_channel.appendLine('Congratulations, your extension "hipdot-vs-code-url-scheme-grabber" is now active!');
+
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
@@ -486,7 +504,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(disposable);
 
-
+	output_channel.show()
 
 }
 
