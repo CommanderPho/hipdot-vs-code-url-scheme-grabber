@@ -90,6 +90,9 @@ class SymbolProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
       if (matchingSymbol) {
         return Promise.resolve(this.symbolsToTreeItems(matchingSymbol.children));
       }
+	  else {
+		return Promise.resolve(this.symbolsToTreeItems([]));
+	  }
     } else {
       return Promise.resolve(this.symbolsToTreeItems(this.symbols));
     }
@@ -224,7 +227,7 @@ async function copyCurrentLanguageServerSymbols() {
 			}
 		}
 
-		const symbolProvider = new SymbolProvider(symbols);
+		// const symbolProvider = new SymbolProvider(symbols);
 
 		// Get best symbol
 		let symbol = await getContainingSymbol(lineNumber, symbols, false); // full_symbol_path = True
