@@ -32,68 +32,9 @@ function getSelectedText() {
 	return '';
 }
 
-function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false): string {
-	if (!vscode.workspace.rootPath) {
-		throw new NoWorkspaceOpen;
-	}
-
-	let editor = vscode.window.activeTextEditor;
-	if (!editor) {
-		throw new NoTextEditorOpen;
-	}
-
-	let document = editor.document;
-	if (document.isUntitled) {
-		throw new DocumentIsUntitled;
-	}
-
-	const path = document.uri.path;
-	const relativePath = path.replace(vscode.workspace.rootPath, '');
-	const lineNumber = editor.selection.active.line + 1;
-	const columnNumber = editor.selection.active.character + 1;
-	const includeColumn = vscode.workspace.getConfiguration('hipdotUrlSchemeGrabber').get('includeColumn');
-
-	const url = `vscode://file${path}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}`;
-	// return markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
-	let output = markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
-
-	if (includeHighlightedTextAsCodeBlock) {
-		const selectedText = editor.document.getText(editor.selection);
-		const codeBlock = "```" + document.languageId + "\n" + selectedText + "\n```";
-		// TODO: optionally de-indent to the appropriate (minimum) level
-		output += "\n" + codeBlock;
-	}
-
-	return output;
-};
-
-
-async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
-	for (let symbol of symbols) {
-		let lineSymbolText = `Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`;
-		console.log(lineSymbolText);
-		output_channel.appendLine(lineSymbolText);
-		if (symbol.children) {
-			await printAllSymbols(symbol.children);
-		}
-	}
-}
-
-// async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[]): Promise<vscode.DocumentSymbol | undefined> {
-// 	// Doesn't quite work, seems to get the outer-most symbol and not the innermost one that contains the lines.
-//     for (let symbol of symbols) {
-//         if (symbol.range.start.line <= lineNumber && symbol.range.end.line >= lineNumber) {
-//             return symbol;
-//         } else if (symbol.children) {
-//             let foundSymbol = await getContainingSymbol(lineNumber, symbol.children);
-//             if (foundSymbol)
-//                 return foundSymbol;
-//         }
-//     }
-//     return undefined;
-// }
-
 async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[], full_symbol_path: boolean): Promise<vscode.DocumentSymbol[] | vscode.DocumentSymbol | undefined> {
+	// gets the containing symbol Symbol at line 52: Function safe_find_index_in_list
+	// currentFileDottedPath: src.pyphocorehelpers.indexing_helpers
 
 	let result: vscode.DocumentSymbol[] = [];
 	for (let symbol of symbols) {
@@ -136,6 +77,8 @@ async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentS
 
 
 async function copyCurrentLanguageServerSymbols() {
+	// copies the current symbol using the language server
+
 	if (!vscode.workspace.rootPath) {
 		throw new Error("NoWorkspaceOpen");
 	}
@@ -241,6 +184,72 @@ async function copyCurrentLanguageServerSymbols() {
 };
 
 
+
+function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false, includeContainingSymbolPath: boolean = false): string {
+	// Copies the current file filesystem path with the line number
+	// [/c:/Users/pho/repos/Spike3DWorkEnv/pyPhoCoreHelpers/src/pyphocorehelpers/indexing_helpers.py:53](vscode://file/c:/Users/pho/repos/Spike3DWorkEnv/pyPhoCoreHelpers/src/pyphocorehelpers/indexing_helpers.py:53)
+	if (!vscode.workspace.rootPath) {
+		throw new NoWorkspaceOpen;
+	}
+
+	let editor = vscode.window.activeTextEditor;
+	if (!editor) {
+		throw new NoTextEditorOpen;
+	}
+
+	let document = editor.document;
+	if (document.isUntitled) {
+		throw new DocumentIsUntitled;
+	}
+
+	const path = document.uri.path;
+	const relativePath = path.replace(vscode.workspace.rootPath, '');
+	const lineNumber = editor.selection.active.line + 1;
+	const columnNumber = editor.selection.active.character + 1;
+	const includeColumn = vscode.workspace.getConfiguration('hipdotUrlSchemeGrabber').get('includeColumn');
+
+	const url = `vscode://file${path}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}`;
+	// return markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
+	let output = markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
+
+	if (includeHighlightedTextAsCodeBlock) {
+		const selectedText = editor.document.getText(editor.selection);
+		const codeBlock = "```" + document.languageId + "\n" + selectedText + "\n```";
+		// TODO: optionally de-indent to the appropriate (minimum) level
+		output += "\n" + codeBlock;
+	}
+
+	return output;
+};
+
+
+async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
+	for (let symbol of symbols) {
+		let lineSymbolText = `Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`;
+		console.log(lineSymbolText);
+		output_channel.appendLine(lineSymbolText);
+		if (symbol.children) {
+			await printAllSymbols(symbol.children);
+		}
+	}
+}
+
+// async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentSymbol[]): Promise<vscode.DocumentSymbol | undefined> {
+// 	// Doesn't quite work, seems to get the outer-most symbol and not the innermost one that contains the lines.
+//     for (let symbol of symbols) {
+//         if (symbol.range.start.line <= lineNumber && symbol.range.end.line >= lineNumber) {
+//             return symbol;
+//         } else if (symbol.children) {
+//             let foundSymbol = await getContainingSymbol(lineNumber, symbol.children);
+//             if (foundSymbol)
+//                 return foundSymbol;
+//         }
+//     }
+//     return undefined;
+// }
+
+
+
 // function copyCurrentLanguageServerSymbols(): string {
 // 	if (!vscode.workspace.rootPath) {
 // 		throw new NoWorkspaceOpen;
@@ -336,7 +345,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let copyMarkdownLink = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLink', () => {
 		let filePathWithLineNumber;
 		try {
-			filePathWithLineNumber = copyCurrentFilePathWithCurrentLineNumber(true, false);
+			filePathWithLineNumber = copyCurrentFilePathWithCurrentLineNumber(true, false, true);
 		} catch (e) {
 			if (e instanceof NoWorkspaceOpen) {
 			} else if (e instanceof NoTextEditorOpen) {
@@ -360,7 +369,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let copyLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection', () => {
 		let filePathWithLineNumberAndCode;
 		try {
-			filePathWithLineNumberAndCode = copyCurrentFilePathWithCurrentLineNumber(false, true);
+			filePathWithLineNumberAndCode = copyCurrentFilePathWithCurrentLineNumber(false, true, true);
 		} catch (e) {
 			if (e instanceof NoWorkspaceOpen) {
 			} else if (e instanceof NoTextEditorOpen) {
@@ -385,7 +394,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let copyMarkdownLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection', () => {
 		let filePathWithLineNumberAndCode;
 		try {
-			filePathWithLineNumberAndCode = copyCurrentFilePathWithCurrentLineNumber(true, true);
+			filePathWithLineNumberAndCode = copyCurrentFilePathWithCurrentLineNumber(true, true, true);
 		} catch (e) {
 			if (e instanceof NoWorkspaceOpen) {
 			} else if (e instanceof NoTextEditorOpen) {
