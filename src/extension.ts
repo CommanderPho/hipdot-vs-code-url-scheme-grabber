@@ -76,8 +76,124 @@ async function getContainingSymbol(lineNumber: number, symbols: vscode.DocumentS
 
 
 
-async function copyCurrentLanguageServerSymbols() {
-	// copies the current symbol using the language server
+// async function copyCurrentLanguageServerSymbols() {
+// 	// Not needed. copies the current symbol using the language server
+// 	"# From `pyphocorehelpers.indexing_helpers.safe_find_index_in_list`"
+
+
+// 	if (!vscode.workspace.rootPath) {
+// 		throw new Error("NoWorkspaceOpen");
+// 	}
+
+// 	let editor = vscode.window.activeTextEditor;
+// 	if (!editor) {
+// 		throw new Error("NoTextEditorOpen");
+// 	}
+
+// 	let document = editor.document;
+// 	if (document.isUntitled) {
+// 		throw new Error("DocumentIsUntitled");
+// 	}
+
+// 	// const path = document.uri.path;
+
+// 	const lineNumber = editor.selection.active.line;
+// 	let symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+// 		'vscode.executeDocumentSymbolProvider',
+// 		document.uri
+// 	);
+
+// 	let debug_string: string[] = [];
+// 	let symbol_strings: string[] = [];
+
+// 	if (symbols) {
+// 		debug_string.push("All symbols:");
+// 		console.log("All symbols:");
+// 		output_channel.appendLine("All symbols:");
+
+// 		// await printAllSymbols(symbols, res);
+// 		// let symbol = await getContainingSymbol(lineNumber, symbols, res);
+// 		await printAllSymbols(symbols);
+
+// 		for (let symbol of symbols) {
+// 			console.log(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
+// 			output_channel.appendLine(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
+
+// 			if (symbol.children) {
+// 				await printAllSymbols(symbol.children);
+// 			}
+// 		}
+
+// 		// const symbolProvider = new SymbolProvider(symbols);
+
+// 		// Get best symbol
+// 		let best_containing_symbol = await getContainingSymbol(lineNumber, symbols, false); // full_symbol_path = True
+// 		if (best_containing_symbol) {
+// 			let lineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[best_containing_symbol.kind]} ${best_containing_symbol.name}`;
+// 			console.log(lineSymbolText);
+// 			output_channel.appendLine(lineSymbolText);
+// 			debug_string.push(`\n${lineSymbolText}`);
+
+// 			let lineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[best_containing_symbol.kind]} ${best_containing_symbol.name}`;
+
+// 			// get best symbol
+// 			// get current file dotted path
+// 			// const currentFileDottedPath = getCurrentFileDottedPath({ rootPath: folder.uri.fsPath, currentFilePath: currentFilePath, shouldAddModuleRootName});
+// 			try {
+// 				const resource = editor.document.uri;
+// 				if (resource.scheme === 'file') {
+// 					const currentFilePath = editor.document.fileName;
+// 					if (!currentFilePath) {
+// 						vscode.window.showErrorMessage("Don't read file. only use this command when selected file.");
+// 						return;
+// 					}
+// 					if (!/.py$/.test(currentFilePath)) {
+// 						vscode.window.showErrorMessage('Not a python file. only use this command when selected python file.');
+// 						return;
+// 					}
+// 					// Get workspace folder to determine relative path
+// 					const folder = vscode.workspace.getWorkspaceFolder(resource);
+// 					if (!folder) {
+// 						vscode.window.showErrorMessage('No workspace folder is opened. only use this command in a workspace.');
+// 						return;
+// 					}
+// 					// get current file dotted path
+// 					const currentFileDottedPath = getCurrentFileDottedPath({ rootPath: folder.uri.fsPath, currentFilePath: currentFilePath, shouldAddModuleRootName: false });
+// 					output_channel.appendLine(`currentFileDottedPath: ${currentFileDottedPath}`);
+// 					// get related defined symbols from current file and current cursor position
+// 					const text = vscode.window.activeTextEditor!.document.getText();
+// 					const currentLine = vscode.window.activeTextEditor!.selection.active.line;
+// 					const definedSymbols = getRelatedDefinedSymbols(text, currentLine + 1);
+// 					const finalOutPath = [currentFileDottedPath, ...definedSymbols].join('.');
+// 					// copy python dotted path to clipboard
+// 					await vscode.env.clipboard.writeText(finalOutPath);
+// 					// vscode.window.showInformationMessage('Copied to clipboard.');
+// 					vscode.window.showInformationMessage(['Copied to clipboard', finalOutPath].join(': '));
+
+// 				} else {
+// 					output_channel.appendLine("could not get currentFileDottedPath.");
+// 				}
+// 			} catch (e) {
+// 				console.error(e);
+// 				vscode.window.showErrorMessage('Failed to parse file.');
+// 			}
+
+// 		}
+// 		else {
+// 			debug_string.push(`\nNo symbol at line ${lineNumber}`);
+// 			console.log(`No symbol at line ${lineNumber}`);
+// 		}
+// 	} else {
+// 		debug_string.push("No symbols found");
+// 	}
+// 	return debug_string.join("");
+// };
+
+
+async function getBestSurroundingLanguageServerSymbol() {
+	// Not needed. copies the current symbol using the language server
+	"# From `pyphocorehelpers.indexing_helpers.safe_find_index_in_list`"
+
 
 	if (!vscode.workspace.rootPath) {
 		throw new Error("NoWorkspaceOpen");
@@ -101,37 +217,27 @@ async function copyCurrentLanguageServerSymbols() {
 		document.uri
 	);
 
-	let res: string[] = [];
+	let symbol_strings: string[] = [];
+	let debug_string: string[] = []; // just for debugging:
+	
 	if (symbols) {
-		res.push("All symbols:");
+		debug_string.push("All symbols:");
 		console.log("All symbols:");
 		output_channel.appendLine("All symbols:");
 
-		// await printAllSymbols(symbols, res);
-		// let symbol = await getContainingSymbol(lineNumber, symbols, res);
-		await printAllSymbols(symbols);
+		// Get the name (only) of the best symbol
+		let best_containing_symbol = await getContainingSymbol(lineNumber, symbols, false); // full_symbol_path = True
+		if (best_containing_symbol) {
+			let symbolName = `${best_containing_symbol.name}`; // like "safe_find_index_in_list"
+			let debugLineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[best_containing_symbol.kind]} ${symbolName}`; 
+			console.log(debugLineSymbolText);
+			output_channel.appendLine(debugLineSymbolText);
+			debug_string.push(`\n${debugLineSymbolText}`);
 
-		for (let symbol of symbols) {
-			console.log(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
-			output_channel.appendLine(`Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`);
-
-			if (symbol.children) {
-				await printAllSymbols(symbol.children);
-			}
-		}
-
-		// const symbolProvider = new SymbolProvider(symbols);
-
-		// Get best symbol
-		let symbol = await getContainingSymbol(lineNumber, symbols, false); // full_symbol_path = True
-		if (symbol) {
-			let lineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[symbol.kind]} ${symbol.name}`;
-			console.log(lineSymbolText);
-			output_channel.appendLine(lineSymbolText);
-			res.push(`\n${lineSymbolText}`);
-
+			// symbol_strings.push(symbolName) // like "safe_find_index_in_list" 
+			
 			// get best symbol
-			// get current file dotted path
+			// get current file dotted path // like "pyphocorehelpers.indexing_helpers.safe_find_index_in_list" 
 			// const currentFileDottedPath = getCurrentFileDottedPath({ rootPath: folder.uri.fsPath, currentFilePath: currentFilePath, shouldAddModuleRootName});
 			try {
 				const resource = editor.document.uri;
@@ -152,17 +258,19 @@ async function copyCurrentLanguageServerSymbols() {
 						return;
 					}
 					// get current file dotted path
-					const currentFileDottedPath = getCurrentFileDottedPath({ rootPath: folder.uri.fsPath, currentFilePath: currentFilePath, shouldAddModuleRootName: false });
+					const currentFileDottedPath = getCurrentFileDottedPath({ rootPath: folder.uri.fsPath, currentFilePath: currentFilePath, shouldAddModuleRootName: false }); // like "pyphocorehelpers.indexing_helpers" 
 					output_channel.appendLine(`currentFileDottedPath: ${currentFileDottedPath}`);
 					// get related defined symbols from current file and current cursor position
 					const text = vscode.window.activeTextEditor!.document.getText();
 					const currentLine = vscode.window.activeTextEditor!.selection.active.line;
 					const definedSymbols = getRelatedDefinedSymbols(text, currentLine + 1);
 					const finalOutPath = [currentFileDottedPath, ...definedSymbols].join('.');
+					symbol_strings.push(finalOutPath) // push the final out path onto the output symbols path
 					// copy python dotted path to clipboard
-					await vscode.env.clipboard.writeText(finalOutPath);
+					// await vscode.env.clipboard.writeText(finalOutPath);
 					// vscode.window.showInformationMessage('Copied to clipboard.');
-					vscode.window.showInformationMessage(['Copied to clipboard', finalOutPath].join(': '));
+					// vscode.window.showInformationMessage(['Copied to clipboard', finalOutPath].join(': '));
+					output_channel.appendLine(['finalOutPath', finalOutPath].join(': '));
 
 				} else {
 					output_channel.appendLine("could not get currentFileDottedPath.");
@@ -171,21 +279,23 @@ async function copyCurrentLanguageServerSymbols() {
 				console.error(e);
 				vscode.window.showErrorMessage('Failed to parse file.');
 			}
-
+			symbol_strings.push(symbolName) // like "safe_find_index_in_list"  -- push the name at the end of the path
 		}
 		else {
-			res.push(`\nNo symbol at line ${lineNumber}`);
+			debug_string.push(`\nNo symbol at line ${lineNumber}`);
 			console.log(`No symbol at line ${lineNumber}`);
 		}
 	} else {
-		res.push("No symbols found");
+		debug_string.push("No symbols found");
 	}
-	return res.join("");
+	output_channel.appendLine(symbol_strings.join("."));
+	// return debug_string.join("");
+	return symbol_strings.join(".");
 };
 
 
 
-function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false, includeContainingSymbolPath: boolean = false): string {
+async function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, includeHighlightedTextAsCodeBlock: boolean = false, includeContainingSymbolPath: boolean = false) {
 	// Copies the current file filesystem path with the line number
 	// [/c:/Users/pho/repos/Spike3DWorkEnv/pyPhoCoreHelpers/src/pyphocorehelpers/indexing_helpers.py:53](vscode://file/c:/Users/pho/repos/Spike3DWorkEnv/pyPhoCoreHelpers/src/pyphocorehelpers/indexing_helpers.py:53)
 	if (!vscode.workspace.rootPath) {
@@ -214,9 +324,18 @@ function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = false, inc
 
 	if (includeHighlightedTextAsCodeBlock) {
 		const selectedText = editor.document.getText(editor.selection);
-		const codeBlock = "```" + document.languageId + "\n" + selectedText + "\n```";
+		if (includeContainingSymbolPath) {
+			let full_symbol_path = await getBestSurroundingLanguageServerSymbol();
+			const containingSymbolPath = "# From `" + full_symbol_path + "`"; // TODO: this is where I get the current symbol path
+			const codeBlock = "```" + document.languageId + "\n" + containingSymbolPath + "\n" + selectedText + "\n```";
+			output += "\n" + codeBlock;
+
+		}
+		else {
+			const codeBlock = "```" + document.languageId + "\n" + selectedText + "\n```";
+			output += "\n" + codeBlock;
+		}
 		// TODO: optionally de-indent to the appropriate (minimum) level
-		output += "\n" + codeBlock;
 	}
 
 	return output;
@@ -318,10 +437,10 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "hipdot-vs-code-url-scheme-grabber" is now active!');
 
-	let copyRawLink = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyLink', () => {
+	let copyRawLink = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyLink', async () => {
 		let filePathWithLineNumber;
 		try {
-			filePathWithLineNumber = copyCurrentFilePathWithCurrentLineNumber();
+			filePathWithLineNumber = await copyCurrentFilePathWithCurrentLineNumber();
 		} catch (e) {
 			if (e instanceof NoWorkspaceOpen) {
 			} else if (e instanceof NoTextEditorOpen) {
@@ -342,10 +461,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(copyRawLink);
 
-	let copyMarkdownLink = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLink', () => {
+	let copyMarkdownLink = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLink', async () => {
 		let filePathWithLineNumber;
 		try {
-			filePathWithLineNumber = copyCurrentFilePathWithCurrentLineNumber(true, false, true);
+			filePathWithLineNumber = await copyCurrentFilePathWithCurrentLineNumber(true, false, true);
 		} catch (e) {
 			if (e instanceof NoWorkspaceOpen) {
 			} else if (e instanceof NoTextEditorOpen) {
@@ -366,10 +485,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(copyMarkdownLink);
 
-	let copyLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection', () => {
+	let copyLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection', async () => {
 		let filePathWithLineNumberAndCode;
 		try {
-			filePathWithLineNumberAndCode = copyCurrentFilePathWithCurrentLineNumber(false, true, true);
+			filePathWithLineNumberAndCode = await copyCurrentFilePathWithCurrentLineNumber(false, true, true);
 		} catch (e) {
 			if (e instanceof NoWorkspaceOpen) {
 			} else if (e instanceof NoTextEditorOpen) {
@@ -391,10 +510,10 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(copyLinkAndSelection);
 
 
-	let copyMarkdownLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection', () => {
+	let copyMarkdownLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection', async () => {
 		let filePathWithLineNumberAndCode;
 		try {
-			filePathWithLineNumberAndCode = copyCurrentFilePathWithCurrentLineNumber(true, true, true);
+			filePathWithLineNumberAndCode = await copyCurrentFilePathWithCurrentLineNumber(true, true, true);
 		} catch (e) {
 			if (e instanceof NoWorkspaceOpen) {
 			} else if (e instanceof NoTextEditorOpen) {
@@ -420,29 +539,29 @@ export function activate(context: vscode.ExtensionContext) {
 	//     vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', copyCurrentLanguageServerSymbols)
 	// );
 
-	let copyCurrentLanguageServerSymbolsCommand = vscode.commands.registerCommand(
-		'hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', async () => {
-			let symbolInfo;
-			try {
-				symbolInfo = await copyCurrentLanguageServerSymbols();
-			} catch (e) {
-				if (e instanceof NoWorkspaceOpen) {
-				} else if (e instanceof NoTextEditorOpen) {
-				} else if (e instanceof DocumentIsUntitled) {
-				} else {
-					throw e;
-				}
-			}
+	// let copyCurrentLanguageServerSymbolsCommand = vscode.commands.registerCommand(
+	// 	'hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', async () => {
+	// 		let symbolInfo;
+	// 		try {
+	// 			symbolInfo = await copyCurrentLanguageServerSymbols();
+	// 		} catch (e) {
+	// 			if (e instanceof NoWorkspaceOpen) {
+	// 			} else if (e instanceof NoTextEditorOpen) {
+	// 			} else if (e instanceof DocumentIsUntitled) {
+	// 			} else {
+	// 				throw e;
+	// 			}
+	// 		}
 
-			if (!symbolInfo) {
-				throw new Error("Could not get symbol info.");
-			}
+	// 		if (!symbolInfo) {
+	// 			throw new Error("Could not get symbol info.");
+	// 		}
 
-			vscode.env.clipboard.writeText(symbolInfo).then(() => {
-				vscode.window.showInformationMessage('Python Symbol Information Copied to Clipboard');
-			});
-		});
-	context.subscriptions.push(copyCurrentLanguageServerSymbolsCommand);
+	// 		vscode.env.clipboard.writeText(symbolInfo).then(() => {
+	// 			vscode.window.showInformationMessage('Python Symbol Information Copied to Clipboard');
+	// 		});
+	// 	});
+	// context.subscriptions.push(copyCurrentLanguageServerSymbolsCommand);
 
 
 	// WEBVIEW API:
