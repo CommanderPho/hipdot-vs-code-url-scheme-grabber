@@ -228,6 +228,12 @@ async function getBestSurroundingLanguageServerSymbol() {
 		// Get the name (only) of the best symbol
 		let best_containing_symbol = await getContainingSymbol(lineNumber, symbols, false); // full_symbol_path = True
 		if (best_containing_symbol) {
+			// best_containing_symbol
+			if (Array.isArray(best_containing_symbol)) {
+				// get only the first element as best_containing_symbol:
+				best_containing_symbol = best_containing_symbol[0];
+			}
+
 			let symbolName = `${best_containing_symbol.name}`; // like "safe_find_index_in_list"
 			let debugLineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[best_containing_symbol.kind]} ${symbolName}`; 
 			console.log(debugLineSymbolText);

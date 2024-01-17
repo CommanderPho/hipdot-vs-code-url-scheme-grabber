@@ -5,7 +5,7 @@
   "publisher": "HipDotMedia",
   "license": "MIT",
   "icon": "images/icon.png",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/CommanderPho/hipdot-vs-code-url-scheme-grabber.git"
