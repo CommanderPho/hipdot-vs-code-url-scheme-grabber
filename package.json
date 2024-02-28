@@ -5,7 +5,7 @@
   "publisher": "HipDotMedia",
   "license": "MIT",
   "icon": "images/icon.png",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/CommanderPho/hipdot-vs-code-url-scheme-grabber.git"
@@ -59,7 +59,11 @@
       },
       {
         "command": "extension.showSymbols",
-        "title": "?🔗? Show Current Symbols"
+        "title": "?🖨️🔗? Show Current Symbols"
+      },
+      {
+        "command": "extension.debugPrintCurrentSymbols",
+        "title": "?🖨️🔗? Debug Print Current Symbols"
       }
     ],
     "menus": {
