@@ -352,26 +352,26 @@ async function debugPrintCurrentSelectedBestSymbol() {
 // Called every 1 second to update the small status bar item provided by this extension
 async function getCurrentBestSymbolDynamicString(): Promise<string> {
     // Replace this with your logic to get a continuously refreshing string
-	"symbol-file"
+	// "symbol-file"
 
-	["symbol-namespace", "symbol-class"]
-	"symbol-field"
-	"symbol-method"
-	"symbol-event"
-	"symbol-variable"
-	"symbol-array"
+	// ["symbol-namespace", "symbol-class"]
+	// "symbol-field"
+	// "symbol-method"
+	// "symbol-event"
+	// "symbol-variable"
+	// "symbol-array"
 
-	"symbol-keyword"
+	// "symbol-keyword"
 	
-	"symbol-numeric"
-	"symbol-operator"
-	"symbol-parameter"
-	"symbol-property"
-	"symbol-ruler"
-	"symbol-snippet"
-	"symbol-string"
-	"symbol-misc"
-	symbol_icon_name = "$(file-code)";
+	// "symbol-numeric"
+	// "symbol-operator"
+	// "symbol-parameter"
+	// "symbol-property"
+	// "symbol-ruler"
+	// "symbol-snippet"
+	// "symbol-string"
+	// "symbol-misc"
+	let symbol_icon_name = "$(file-code)";
 
 	let currSelectedBestSymbol;
 	try {
@@ -392,6 +392,7 @@ async function getCurrentBestSymbolDynamicString(): Promise<string> {
 	}
 	return currSelectedBestSymbol;
 }
+
 
 
 
