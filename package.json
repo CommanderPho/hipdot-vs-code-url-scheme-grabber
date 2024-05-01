@@ -5,7 +5,7 @@
   "publisher": "HipDotMedia",
   "license": "MIT",
   "icon": "images/icon.png",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/CommanderPho/hipdot-vs-code-url-scheme-grabber.git"
@@ -123,6 +123,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "package": "yarn run compile && vsce package",
+    "package:pho": "yarn run compile && vsce package --out hipdot-vs-code-url-scheme-grabber.vsix",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },

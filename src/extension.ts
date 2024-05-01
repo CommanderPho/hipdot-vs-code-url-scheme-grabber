@@ -20,6 +20,7 @@ class DocumentIsUntitled extends Error {
 
 // Create output channel
 let output_channel = vscode.window.createOutputChannel("hipdot-vs-code");
+let enable_output_channel = false;
 
 
 function getSelectedText() {
@@ -601,8 +602,9 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(disposable);
 
-	output_channel.show()
-
+	if (enable_output_channel) {
+		output_channel.show();
+	}
 
 	// Create a new status bar item that we can now manage
     let myStatusBarItem: vscode.StatusBarItem;
