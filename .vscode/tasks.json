@@ -11,10 +11,9 @@
 			"presentation": {
 				"reveal": "never"
 			},
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
+			"group": "build",
+			"label": "npm: watch",
+			"detail": "tsc -watch -p ./"
 		},
 		{
 			"type": "npm",
@@ -31,6 +30,17 @@
 			"problemMatcher": [],
 			"label": "npm: package",
 			"detail": "yarn run compile && vsce package"
+		},
+		{
+			"type": "npm",
+			"script": "package:pho",
+			"problemMatcher": [],
+			"label": "npm: package:pho",
+			"detail": "yarn run compile && vsce package --out hipdot-vs-code-url-scheme-grabber.vsix",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
