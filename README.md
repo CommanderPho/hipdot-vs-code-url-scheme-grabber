@@ -1,6 +1,6 @@
 # VS Code URL Scheme Grabber README
 
-NOTE: the original extension is published by `HipDotMedia` and is named `HipDotMedia.hipdot-vs-code-url-scheme-grabber`, located here: [Original HipDotMedia Version](https://marketplace.visualstudio.com/items?itemName=HipDotMedia.hipdot-vs-code-url-scheme-grabber). I have forked it and added some graphical changes that make it easier for me to use.Name: VS Code URL Scheme Grabber
+NOTE: the original extension is published by `HipDotMedia` and is named `HipDotMedia.pho-vs-code-url-scheme-grabber`, located here: [Original HipDotMedia Version](https://marketplace.visualstudio.com/items?itemName=HipDotMedia.pho-vs-code-url-scheme-grabber). I have forked it and added some graphical changes that make it easier for me to use.Name: VS Code URL Scheme Grabber
 
 Visual Studio Code has a documented way to open VS code using URLs (in the MacOS / iOS world, this is commonly called a URL Scheme or URI Scheme). You can see the documentation here: [Opening VS Code with URLs](https://code.visualstudio.com/docs/editor/command-line#_opening-vs-code-with-urls). This is something I personally use when planning out the steps I will take to implement a feature. However there is no built in way to get the URL from VS Code, so I have been copying the absolute path and manually creating the URLs (with snippets in my notes program of choice).
 
@@ -19,7 +19,7 @@ This extension adds two commands:
 
 A short demo of it in action:
 
-![Screencast of URL Scheme Grabber in Use](https://github.com/ebetancourt/hipdot-vs-code-url-scheme-grabber/raw/main/images/screencast.gif)
+![Screencast of URL Scheme Grabber in Use](https://github.com/ebetancourt/pho-vs-code-url-scheme-grabber/raw/main/images/screencast.gif)
 
 ## Extension Settings
 
@@ -35,9 +35,9 @@ None yet
 
 ### 1.0.5
 
-- [\[Fix\] Remove workspace existing check by velios · Pull Request #5](https://github.com/ebetancourt/hipdot-vs-code-url-scheme-grabber/pull/5)
-- [Add option to open links in VSCode Insiders by dandavison · Pull Request #2](https://github.com/ebetancourt/hipdot-vs-code-url-scheme-grabber/pull/2)
-- [Added command to copy selected text in addition to line number/link by CommanderPho · Pull Request #4](https://github.com/ebetancourt/hipdot-vs-code-url-scheme-grabber/pull/4)
+- [\[Fix\] Remove workspace existing check by velios · Pull Request #5](https://github.com/ebetancourt/pho-vs-code-url-scheme-grabber/pull/5)
+- [Add option to open links in VSCode Insiders by dandavison · Pull Request #2](https://github.com/ebetancourt/pho-vs-code-url-scheme-grabber/pull/2)
+- [Added command to copy selected text in addition to line number/link by CommanderPho · Pull Request #4](https://github.com/ebetancourt/pho-vs-code-url-scheme-grabber/pull/4)
 
 ### 1.0.2
 
@@ -66,7 +66,7 @@ Thanks Nisanth!
 
 ## Contributing:
 
-Issue reports and PRs are welcome at [https://github.com/ebetancourt/hipdot-vs-code-url-scheme-grabber](https://github.com/ebetancourt/hipdot-vs-code-url-scheme-grabber)
+Issue reports and PRs are welcome at [https://github.com/ebetancourt/pho-vs-code-url-scheme-grabber](https://github.com/ebetancourt/pho-vs-code-url-scheme-grabber)
 
 
 **Enjoy!**

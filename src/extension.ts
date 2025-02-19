@@ -411,14 +411,14 @@ export function activate(context: vscode.ExtensionContext) {
 	// let output_channel = vscode.window.createOutputChannel("hipdot-vs-code", "python")
 
 	// write to output
-	output_channel.appendLine('Congratulations, your extension "hipdot-vs-code-url-scheme-grabber" is now active!');
+	output_channel.appendLine('Congratulations, your extension "pho-vs-code-url-scheme-grabber" is now active!');
 
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "hipdot-vs-code-url-scheme-grabber" is now active!');
+	console.log('Congratulations, your extension "pho-vs-code-url-scheme-grabber" is now active!');
 
-	let copyRawLink = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyLink', async () => {
+	let copyRawLink = vscode.commands.registerCommand('pho-vs-code-url-scheme-grabber.copyLink', async () => {
 		let filePathWithLineNumber;
 		try {
 			filePathWithLineNumber = await copyCurrentFilePathWithCurrentLineNumber();
@@ -441,7 +441,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(copyRawLink);
 
-	let copyMarkdownLink = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLink', async () => {
+	let copyMarkdownLink = vscode.commands.registerCommand('pho-vs-code-url-scheme-grabber.copyMarkdownLink', async () => {
 		let filePathWithLineNumber;
 		try {
 			filePathWithLineNumber = await copyCurrentFilePathWithCurrentLineNumber(true, false, true);
@@ -464,7 +464,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(copyMarkdownLink);
 
-	let copyLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection', async () => {
+	let copyLinkAndSelection = vscode.commands.registerCommand('pho-vs-code-url-scheme-grabber.copyLinkAndSelection', async () => {
 		let filePathWithLineNumberAndCode;
 		try {
 			filePathWithLineNumberAndCode = await copyCurrentFilePathWithCurrentLineNumber(false, true, true);
@@ -488,7 +488,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(copyLinkAndSelection);
 
 
-	let copyMarkdownLinkAndSelection = vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection', async () => {
+	let copyMarkdownLinkAndSelection = vscode.commands.registerCommand('pho-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection', async () => {
 		let filePathWithLineNumberAndCode;
 		try {
 			filePathWithLineNumberAndCode = await copyCurrentFilePathWithCurrentLineNumber(true, true, true);
@@ -513,11 +513,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// new LSP thing:
 	// context.subscriptions.push(
-	//     vscode.commands.registerCommand('hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', copyCurrentLanguageServerSymbols)
+	//     vscode.commands.registerCommand('pho-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', copyCurrentLanguageServerSymbols)
 	// );
 
 	// let copyCurrentLanguageServerSymbolsCommand = vscode.commands.registerCommand(
-	// 	'hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', async () => {
+	// 	'pho-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols', async () => {
 	// 		let symbolInfo;
 	// 		try {
 	// 			symbolInfo = await copyCurrentLanguageServerSymbols();

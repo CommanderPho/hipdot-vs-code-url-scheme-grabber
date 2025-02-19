@@ -1,14 +1,14 @@
 {
-  "name": "hipdot-vs-code-url-scheme-grabber",
+  "name": "pho-vs-code-url-scheme-grabber",
   "displayName": "Pho VS Code URL Scheme Grabber",
-  "description": "Fork to easily copy the vscode link to your current file and line number either just the URL or in Markdown format. Original is published by `HipDotMedia` and is named `HipDotMedia.hipdot-vs-code-url-scheme-grabber`, located here: [Original HipDotMedia Version](https://marketplace.visualstudio.com/items?itemName=HipDotMedia.hipdot-vs-code-url-scheme-grabber).",
+  "description": "Fork to easily copy the vscode link to your current file and line number either just the URL or in Markdown format. Original is published by `HipDotMedia` and is named `HipDotMedia.pho-vs-code-url-scheme-grabber`, located here: [Original HipDotMedia Version](https://marketplace.visualstudio.com/items?itemName=HipDotMedia.pho-vs-code-url-scheme-grabber).",
   "publisher": "phohale",
   "license": "MIT",
   "icon": "images/icon.png",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CommanderPho/hipdot-vs-code-url-scheme-grabber.git"
+    "url": "https://github.com/CommanderPho/pho-vs-code-url-scheme-grabber.git"
   },
   "engines": {
     "vscode": "^1.76.0"
@@ -38,23 +38,23 @@
     },
     "commands": [
       {
-        "command": "hipdot-vs-code-url-scheme-grabber.copyLink",
+        "command": "pho-vs-code-url-scheme-grabber.copyLink",
         "title": "🔗Copy Link to Current File and Line Number"
       },
       {
-        "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLink",
+        "command": "pho-vs-code-url-scheme-grabber.copyMarkdownLink",
         "title": "🔗Copy Link to Current File and Line Number in Markdown Format"
       },
       {
-        "command": "hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection",
+        "command": "pho-vs-code-url-scheme-grabber.copyLinkAndSelection",
         "title": "📋🔗Copy Link to Current File and Line Number + Selection"
       },
       {
-        "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
+        "command": "pho-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
         "title": "📋🔗Copy Link to Current File and Line Number + Selection in Markdown Format"
       },
       {
-        "command": "hipdot-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols",
+        "command": "pho-vs-code-url-scheme-grabber.copyCurrentLanguageServerSymbols",
         "title": "?🔗📋? Copy Current Language Server Symbols"
       },
       {
@@ -69,19 +69,19 @@
     "menus": {
         "editor/context": [
         {
-          "command": "hipdot-vs-code-url-scheme-grabber.copyLink",
+          "command": "pho-vs-code-url-scheme-grabber.copyLink",
           "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyLink"
         },
         {
-          "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLink",
+          "command": "pho-vs-code-url-scheme-grabber.copyMarkdownLink",
           "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLink"
         },
         {
-          "command": "hipdot-vs-code-url-scheme-grabber.copyLinkAndSelection",
+          "command": "pho-vs-code-url-scheme-grabber.copyLinkAndSelection",
           "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyLinkAndSelection"
         },
         {
-          "command": "hipdot-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
+          "command": "pho-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
           "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLinkAndSelection"
         }
       ]
@@ -128,7 +128,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "package": "yarn run compile && vsce package",
-    "package:pho": "yarn run compile && vsce package --out hipdot-vs-code-url-scheme-grabber.vsix",
+    "package:pho": "yarn run compile && vsce package --out pho-vs-code-url-scheme-grabber.vsix",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
