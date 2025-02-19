@@ -113,6 +113,7 @@
           "type": "boolean",
           "default": true,
           "description": "Enable context menu for 'Copy Link to Current File and Line Number + Selection in Markdown Format'"
+        },
         "hipdotUrlSchemeGrabber.useVSCodeInsiders": {
           "type": "boolean",
           "default": false,
