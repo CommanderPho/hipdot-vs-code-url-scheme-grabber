@@ -1,8 +1,8 @@
 {
   "name": "hipdot-vs-code-url-scheme-grabber",
-  "displayName": "VS Code URL Scheme Grabber",
-  "description": "easily copy the vscode link to your current file and line number either just the URL or in Markdown format",
-  "publisher": "HipDotMedia",
+  "displayName": "Pho VS Code URL Scheme Grabber",
+  "description": "Fork to easily copy the vscode link to your current file and line number either just the URL or in Markdown format. Original is published by `HipDotMedia` and is named `HipDotMedia.hipdot-vs-code-url-scheme-grabber`, located here: [Original HipDotMedia Version](https://marketplace.visualstudio.com/items?itemName=HipDotMedia.hipdot-vs-code-url-scheme-grabber).",
+  "publisher": "phohale",
   "license": "MIT",
   "icon": "images/icon.png",
   "version": "2.0.3",

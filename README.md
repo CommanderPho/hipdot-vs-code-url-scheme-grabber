@@ -1,5 +1,7 @@
 # VS Code URL Scheme Grabber README
 
+NOTE: the original extension is published by `HipDotMedia` and is named `HipDotMedia.hipdot-vs-code-url-scheme-grabber`, located here: [Original HipDotMedia Version](https://marketplace.visualstudio.com/items?itemName=HipDotMedia.hipdot-vs-code-url-scheme-grabber). I have forked it and added some graphical changes that make it easier for me to use.Name: VS Code URL Scheme Grabber
+
 Visual Studio Code has a documented way to open VS code using URLs (in the MacOS / iOS world, this is commonly called a URL Scheme or URI Scheme). You can see the documentation here: [Opening VS Code with URLs](https://code.visualstudio.com/docs/editor/command-line#_opening-vs-code-with-urls). This is something I personally use when planning out the steps I will take to implement a feature. However there is no built in way to get the URL from VS Code, so I have been copying the absolute path and manually creating the URLs (with snippets in my notes program of choice).
 
 Other times you might want links that open VS Code to a specific file location:
