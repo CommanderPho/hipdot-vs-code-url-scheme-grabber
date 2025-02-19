@@ -11,6 +11,9 @@ import { SymbolProvider } from './SymbolProvider';
 class NoTextEditorOpen extends Error {
 }
 
+class NoWorkspaceOpen extends Error {
+}
+
 class DocumentIsUntitled extends Error {
 }
 
@@ -81,7 +84,7 @@ async function getBestSurroundingLanguageServerSymbol() {
 
 
 	if (!vscode.workspace.rootPath) {
-		throw new Error("NoWorkspaceOpen");
+		 throw new NoWorkspaceOpen;
 	}
 
 	let editor = vscode.window.activeTextEditor;
@@ -190,7 +193,8 @@ async function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = fals
 	// Copies the current file filesystem path with the line number
 	// [/c:/Users/pho/repos/Spike3DWorkEnv/pyPhoCoreHelpers/src/pyphocorehelpers/indexing_helpers.py:53](vscode://file/c:/Users/pho/repos/Spike3DWorkEnv/pyPhoCoreHelpers/src/pyphocorehelpers/indexing_helpers.py:53)
 	if (!vscode.workspace.rootPath) {
-		throw new NoWorkspaceOpen;
+		 throw new NoWorkspaceOpen;
+		
 	}
 
 	let editor = vscode.window.activeTextEditor;
@@ -272,7 +276,7 @@ async function debugPrintCurrentSelectedBestSymbol() {
 	const useShortenedSubpathIfPossible: boolean = true;
 
 	if (!vscode.workspace.rootPath) {
-		throw new NoWorkspaceOpen;
+		 throw new NoWorkspaceOpen;
 	}
 
 	let editor = vscode.window.activeTextEditor;
