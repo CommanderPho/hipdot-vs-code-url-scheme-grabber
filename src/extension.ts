@@ -8,9 +8,6 @@ import { getCurrentFileDottedPath } from './utils/getCurrentFileDottedPath';
 import { getLastNPeriodSeparatedElements, findSymbolInString } from './utils/dottedPathHelpers';
 import { SymbolProvider } from './SymbolProvider';
 
-class NoWorkspaceOpen extends Error {
-}
-
 class NoTextEditorOpen extends Error {
 }
 
@@ -207,12 +204,17 @@ async function copyCurrentFilePathWithCurrentLineNumber(markdown: boolean = fals
 	}
 
 	const path = document.uri.path;
-	const relativePath = path.replace(vscode.workspace.rootPath, '');
+	const relativePath = vscode.workspace?.rootPath
+		? path.replace(vscode.workspace?.rootPath, "")
+		: path;
 	const lineNumber = editor.selection.active.line + 1;
 	const columnNumber = editor.selection.active.character + 1;
-	const includeColumn = vscode.workspace.getConfiguration('hipdotUrlSchemeGrabber').get('includeColumn');
+	const config = vscode.workspace.getConfiguration('hipdotUrlSchemeGrabber');
+	const includeColumn = config.get('includeColumn');
+	const useVSCodeInsiders = config.get('useVSCodeInsiders');
+	const protocol = useVSCodeInsiders ? 'vscode-insiders' : 'vscode';
 
-	const url = `vscode://file${path}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}`;
+	const url = `${protocol}://file${path}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}`;
 	// return markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
 	let output = markdown ? `[${relativePath}:${lineNumber}${includeColumn ? `:${columnNumber}` : ''}](${url})` : url;
 
@@ -417,8 +419,7 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			filePathWithLineNumber = await copyCurrentFilePathWithCurrentLineNumber();
 		} catch (e) {
-			if (e instanceof NoWorkspaceOpen) {
-			} else if (e instanceof NoTextEditorOpen) {
+			if (e instanceof NoTextEditorOpen) {
 			} else if (e instanceof DocumentIsUntitled) {
 			} else {
 				throw e;
@@ -441,8 +442,7 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			filePathWithLineNumber = await copyCurrentFilePathWithCurrentLineNumber(true, false, true);
 		} catch (e) {
-			if (e instanceof NoWorkspaceOpen) {
-			} else if (e instanceof NoTextEditorOpen) {
+			if (e instanceof NoTextEditorOpen) {
 			} else if (e instanceof DocumentIsUntitled) {
 			} else {
 				throw e;
@@ -465,8 +465,7 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			filePathWithLineNumberAndCode = await copyCurrentFilePathWithCurrentLineNumber(false, true, true);
 		} catch (e) {
-			if (e instanceof NoWorkspaceOpen) {
-			} else if (e instanceof NoTextEditorOpen) {
+			if (e instanceof NoTextEditorOpen) {
 			} else if (e instanceof DocumentIsUntitled) {
 			} else {
 				throw e;
@@ -490,8 +489,7 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			filePathWithLineNumberAndCode = await copyCurrentFilePathWithCurrentLineNumber(true, true, true);
 		} catch (e) {
-			if (e instanceof NoWorkspaceOpen) {
-			} else if (e instanceof NoTextEditorOpen) {
+			if (e instanceof NoTextEditorOpen) {
 			} else if (e instanceof DocumentIsUntitled) {
 			} else {
 				throw e;
