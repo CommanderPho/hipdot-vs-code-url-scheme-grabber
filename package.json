@@ -5,7 +5,7 @@
   "publisher": "HipDotMedia",
   "license": "MIT",
   "icon": "images/icon.png",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/CommanderPho/hipdot-vs-code-url-scheme-grabber.git"
@@ -113,6 +113,11 @@
           "type": "boolean",
           "default": true,
           "description": "Enable context menu for 'Copy Link to Current File and Line Number + Selection in Markdown Format'"
+        },
+        "hipdotUrlSchemeGrabber.useVSCodeInsiders": {
+          "type": "boolean",
+          "default": false,
+          "description": "Format the link so that it opens in VSCode Insiders instead of VSCode"
         }
       }
     }
