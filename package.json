@@ -5,7 +5,7 @@
   "publisher": "phohale",
   "license": "MIT",
   "icon": "images/icon.png",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/CommanderPho/pho-vs-code-url-scheme-grabber.git"
@@ -70,19 +70,23 @@
         "editor/context": [
         {
           "command": "pho-vs-code-url-scheme-grabber.copyLink",
-          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyLink"
+          "when": "editorTextFocus && (config.hipdotUrlSchemeGrabber.contextMenu.showInTopLevelMenu || editorHasSelection) && config.hipdotUrlSchemeGrabber.contextMenu.copyLink",
+          "group": "9_cutcopypaste@1337"
         },
         {
           "command": "pho-vs-code-url-scheme-grabber.copyMarkdownLink",
-          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLink"
+          "when": "editorTextFocus && (config.hipdotUrlSchemeGrabber.contextMenu.showInTopLevelMenu || editorHasSelection) && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLink",
+          "group": "9_cutcopypaste@1337"
         },
         {
           "command": "pho-vs-code-url-scheme-grabber.copyLinkAndSelection",
-          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyLinkAndSelection"
+          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyLinkAndSelection",
+          "group": "9_cutcopypaste@1337"
         },
         {
           "command": "pho-vs-code-url-scheme-grabber.copyMarkdownLinkAndSelection",
-          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLinkAndSelection"
+          "when": "editorTextFocus && editorHasSelection && config.hipdotUrlSchemeGrabber.contextMenu.copyMarkdownLinkAndSelection",
+          "group": "9_cutcopypaste@1337"
         }
       ]
     },
@@ -113,6 +117,16 @@
           "type": "boolean",
           "default": true,
           "description": "Enable context menu for 'Copy Link to Current File and Line Number + Selection in Markdown Format'"
+        },
+        "hipdotUrlSchemeGrabber.contextMenu.showInTopLevelMenu": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable context menu items in top-level editor menus (right clicking in code file)"
+        },
+        "hipdotUrlSchemeGrabber.enableDebugStatusBarItem": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable the status bar item that shows the current context dynamically for debugging."
         },
         "hipdotUrlSchemeGrabber.useVSCodeInsiders": {
           "type": "boolean",
