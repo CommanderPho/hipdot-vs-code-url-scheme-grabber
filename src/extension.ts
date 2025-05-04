@@ -7,6 +7,8 @@ import { getRelatedDefinedSymbols } from './utils/getRelatedDefinedSymbols';
 import { getCurrentFileDottedPath } from './utils/getCurrentFileDottedPath';
 import { getLastNPeriodSeparatedElements, findSymbolInString } from './utils/dottedPathHelpers';
 import { SymbolProvider } from './SymbolProvider';
+import { showTimedInformationMessage, showTimedErrorMessage } from './utils/logging';
+
 
 class NoTextEditorOpen extends Error {
 }
@@ -19,7 +21,7 @@ class DocumentIsUntitled extends Error {
 
 
 // Create output channel
-let output_channel = vscode.window.createOutputChannel("hipdot-vs-code");
+let myChannel = vscode.window.createOutputChannel("hipdot-vs-code");
 let enable_output_channel = false;
 
 
@@ -111,7 +113,7 @@ async function getBestSurroundingLanguageServerSymbol() {
         if (symbols) {
                 debug_string.push("All symbols:");
                 console.log("All symbols:");
-                output_channel.appendLine("All symbols:");
+                myChannel.appendLine("All symbols:");
 
                 // Get the name (only) of the best symbol
                 let best_containing_symbol = await getContainingSymbol(lineNumber, symbols, false); // full_symbol_path = True
@@ -125,7 +127,7 @@ async function getBestSurroundingLanguageServerSymbol() {
                         let symbolName = `${best_containing_symbol.name}`; // like "safe_find_index_in_list"
                         let debugLineSymbolText = `Symbol at line ${lineNumber}: ${vscode.SymbolKind[best_containing_symbol.kind]} ${symbolName}`; 
                         console.log(debugLineSymbolText);
-                        output_channel.appendLine(debugLineSymbolText);
+                        myChannel.appendLine(debugLineSymbolText);
                         debug_string.push(`\n${debugLineSymbolText}`);
 
                         // symbol_strings.push(symbolName) // like "safe_find_index_in_list" 
@@ -138,22 +140,22 @@ async function getBestSurroundingLanguageServerSymbol() {
                                 if (resource.scheme === 'file') {
                                         const currentFilePath = editor.document.fileName;
                                         if (!currentFilePath) {
-                                                vscode.window.showErrorMessage("Don't read file. only use this command when selected file.");
+                                                showTimedErrorMessage("Don't read file. only use this command when selected file.");
                                                 return;
                                         }
                                         if (!/.py$/.test(currentFilePath)) {
-                                                vscode.window.showErrorMessage('Not a python file. only use this command when selected python file.');
+                                                showTimedErrorMessage('Not a python file. only use this command when selected python file.');
                                                 return;
                                         }
                                         // Get workspace folder to determine relative path
                                         const folder = vscode.workspace.getWorkspaceFolder(resource);
                                         if (!folder) {
-                                                vscode.window.showErrorMessage('No workspace folder is opened. only use this command in a workspace.');
+                                                showTimedErrorMessage('No workspace folder is opened. only use this command in a workspace.');
                                                 return;
                                         }
                                         // get current file dotted path
                                         const currentFileDottedPath = getCurrentFileDottedPath({ rootPath: folder.uri.fsPath, currentFilePath: currentFilePath, shouldAddModuleRootName: false }); // like "pyphocorehelpers.indexing_helpers" 
-                                        output_channel.appendLine(`currentFileDottedPath: ${currentFileDottedPath}`);
+                                        myChannel.appendLine(`currentFileDottedPath: ${currentFileDottedPath}`);
                                         // get related defined symbols from current file and current cursor position
                                         const text = vscode.window.activeTextEditor!.document.getText();
                                         const currentLine = vscode.window.activeTextEditor!.selection.active.line;
@@ -162,16 +164,16 @@ async function getBestSurroundingLanguageServerSymbol() {
                                         symbol_strings.push(finalOutPath) // push the final out path onto the output symbols path
                                         // copy python dotted path to clipboard
                                         // await vscode.env.clipboard.writeText(finalOutPath);
-                                        // vscode.window.showInformationMessage('Copied to clipboard.');
-                                        // vscode.window.showInformationMessage(['Copied to clipboard', finalOutPath].join(': '));
-                                        output_channel.appendLine(['finalOutPath', finalOutPath].join(': '));
+                                        // showTimedInformationMessage('Copied to clipboard.');
+                                        // showTimedInformationMessage(['Copied to clipboard', finalOutPath].join(': '));
+                                        myChannel.appendLine(['finalOutPath', finalOutPath].join(': '));
 
                                 } else {
-                                        output_channel.appendLine("could not get currentFileDottedPath.");
+                                        myChannel.appendLine("could not get currentFileDottedPath.");
                                 }
                         } catch (e) {
                                 console.error(e);
-                                vscode.window.showErrorMessage('Failed to parse file.');
+                                showTimedErrorMessage('Failed to parse file.');
                         }
                         symbol_strings.push(symbolName) // like "safe_find_index_in_list"  -- push the name at the end of the path
                 }
@@ -182,7 +184,7 @@ async function getBestSurroundingLanguageServerSymbol() {
         } else {
                 debug_string.push("No symbols found");
         }
-        output_channel.appendLine(symbol_strings.join("."));
+        myChannel.appendLine(symbol_strings.join("."));
         // return debug_string.join("");
         return symbol_strings.join(".");
 };
@@ -261,7 +263,7 @@ async function printAllSymbols(symbols: vscode.DocumentSymbol[]) {
         for (let symbol of symbols) {
                 let lineSymbolText = `Symbol name: ${symbol.name}, Range: l(${symbol.range.start.line}, ${symbol.range.start.character}) - l(${symbol.range.end.line}, ${symbol.range.end.character}), Kind: ${vscode.SymbolKind[symbol.kind]}`;
                 console.log(lineSymbolText);
-                output_channel.appendLine(lineSymbolText);
+                myChannel.appendLine(lineSymbolText);
                 if (symbol.children) {
                         await printAllSymbols(symbol.children);
                 }
@@ -343,7 +345,7 @@ async function debugPrintCurrentSelectedBestSymbol() {
 
         // Print the output:
         console.log(output);
-        output_channel.appendLine(output);
+        myChannel.appendLine(output);
         return output;
 };
 
@@ -393,7 +395,7 @@ async function getCurrentBestSymbolDynamicString(): Promise<string> {
 
         if (!currSelectedBestSymbol) {
                 console.log("ERROR: Could not get file path with line number.");
-                output_channel.appendLine("ERROR: Could not get file path with line number.");
+                myChannel.appendLine("ERROR: Could not get file path with line number.");
                 return "<ERR>";
         }
         return currSelectedBestSymbol;
@@ -411,7 +413,7 @@ export function activate(context: vscode.ExtensionContext) {
         // let output_channel = vscode.window.createOutputChannel("hipdot-vs-code", "python")
 
         // write to output
-        output_channel.appendLine('Congratulations, your extension "pho-vs-code-url-scheme-grabber" is now active!');
+        myChannel.appendLine('Congratulations, your extension "pho-vs-code-url-scheme-grabber" is now active!');
 
 
         // Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -435,7 +437,7 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 vscode.env.clipboard.writeText(filePathWithLineNumber).then(() => {
-                        vscode.window.showInformationMessage('URL Copied to Clipboard');
+                        showTimedInformationMessage("URL Copied to Clipboard");
                 });
         });
 
@@ -458,7 +460,7 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 vscode.env.clipboard.writeText(filePathWithLineNumber).then(() => {
-                        vscode.window.showInformationMessage('Markdown URL Copied to Clipboard');
+                        showTimedInformationMessage('Markdown URL Copied to Clipboard');
                 });
         });
 
@@ -481,7 +483,7 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 vscode.env.clipboard.writeText(filePathWithLineNumberAndCode).then(() => {
-                        vscode.window.showInformationMessage('URL+Selection Copied to Clipboard');
+                        showTimedInformationMessage('URL+Selection Copied to Clipboard');
                 });
         });
 
@@ -505,7 +507,7 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 vscode.env.clipboard.writeText(filePathWithLineNumberAndCode).then(() => {
-                        vscode.window.showInformationMessage('Markdown URL+Selection Copied to Clipboard');
+                        showTimedInformationMessage('Markdown URL+Selection Copied to Clipboard', 800);
                 });
         });
 
@@ -535,7 +537,7 @@ export function activate(context: vscode.ExtensionContext) {
         // 		}
 
         // 		vscode.env.clipboard.writeText(symbolInfo).then(() => {
-        // 			vscode.window.showInformationMessage('Python Symbol Information Copied to Clipboard');
+        // 			showTimedInformationMessage('Python Symbol Information Copied to Clipboard');
         // 		});
         // 	});
         // context.subscriptions.push(copyCurrentLanguageServerSymbolsCommand);
@@ -585,7 +587,7 @@ export function activate(context: vscode.ExtensionContext) {
         let disposable = vscode.commands.registerCommand('extension.showSymbols', async () => {
                 const editor = vscode.window.activeTextEditor;
                 if (!editor || editor.document.languageId !== 'python') {
-                        vscode.window.showInformationMessage('No symbols here');
+                        showTimedInformationMessage('No symbols here');
                         return;
                 }
 
@@ -595,7 +597,7 @@ export function activate(context: vscode.ExtensionContext) {
                 );
 
                 if (!symbols || !symbols.length) {
-                        vscode.window.showInformationMessage('No symbols here');
+                        showTimedInformationMessage('No symbols here');
                         return;
                 }
 
@@ -606,7 +608,7 @@ export function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(disposable);
 
         if (enable_output_channel) {
-                output_channel.show();
+                myChannel.show();
         }
 
         // Create a new status bar item that we can now manage
@@ -670,6 +672,9 @@ export function activate(context: vscode.ExtensionContext) {
             const newEnableDebugStatusBarItem = newConfig.get('enableDebugStatusBarItem');
             
             if (newEnableDebugStatusBarItem !== enableDebugStatusBarItem) {
+                // Update the variable
+                enableDebugStatusBarItem = newEnableDebugStatusBarItem; // Add this line to update the variable
+                
                 // Show/hide status bar and manage interval accordingly
                 if (newEnableDebugStatusBarItem) {
                     myStatusBarItem.show();
@@ -686,8 +691,7 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
         }
-    }));    
-
+    }));
 
 
 
